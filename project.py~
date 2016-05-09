@@ -1,5 +1,11 @@
 import random, pygame, sys
-from pygame.locals import*
+import numpy as np
+import cv2
+from Tkinter import *
+from tkFileDialog import askopenfilename
+from PIL import ImageTk, Image
+import PIL.ImageOps
+from pygame.locals import *
 
 FPS = 30
 GAMEWIDTH = 800
@@ -23,8 +29,26 @@ LEFT = 'left'
 RIGHT = 'right'
 
 def main():
-	global FPSCLOCK, GAMEWINDOW, BASICFONT, time
+	global FPSCLOCK, GAMEWINDOW, BASICFONT, root
+	
+	root = Tk()
 
+	# buttons the appear for the GUI
+	button = Button(text="Choose Image", command=openfile)
+	button.place(x = 225, y = 200)
+
+	# setup the main gui window using Tkinter
+	width, height = 550, 400
+	root.minsize(width,height)
+	root.maxsize(width,height)
+	im = Image.open("otter.jpg")
+	tkimage = ImageTk.PhotoImage(im)
+	myvar = Label(root, image = tkimage)
+	myvar.place(x=0,y=0,relwidth=1,relheight=1)
+	myvar.lower()
+	root.wm_title("File Chooser GUI")
+	root.mainloop()
+	
 	pygame.init()
 	FPSCLOCK = pygame.time.Clock()
 	GAMEWINDOW = pygame.display.set_mode((GAMEWIDTH,GAMEHEIGHT))
@@ -32,7 +56,9 @@ def main():
 	pygame.display.set_caption('test')
 	while True:
 		runGame()
-			
+
+
+
 def runGame():
 
 	startx = random.randint(0,TILEWIDTH - 1)
@@ -46,7 +72,7 @@ def runGame():
 	numOfRedPickUp = 0
 	numOfGreenPickUp = 0
 	numOfBluePickUp = 0
-	time = 2000
+	time = 2500
 	negativeMessage = "Not Obtained"
 	reverseMessage = "Not Obtained"
 	negative = False
@@ -201,25 +227,25 @@ def runGame():
 		
 		displayCollection(numOfRedPickUp, numOfGreenPickUp, numOfBluePickUp, time, negativeMessage, reverseMessage)
 		
+		
 		if (time == 0):
-			stop() # will change later to start image changer thingy
+			pygame.quit()
+			modfile(filename, numOfRedPickUp, numOfGreenPickUp, numOfBluePickUp, negative, reverse)
+			stop()
 		
 		pygame.display.update()
 		FPSCLOCK.tick(FPS)
 					
 				
-	
-	
-	
 def stop():
 	pygame.quit()
-	sys.exit()
-	
+	sys.exit()	
+
 def displayCollection(numOfRedPickUp, numOfGreenPickUp, numOfBluePickUp, time, negativeMessage, reverseMessage):
 	collectionBoxRed = BASICFONT.render("Red Pick-Ups: %s" % (numOfRedPickUp), True, WHITE)
 	redBoxRect = collectionBoxRed.get_rect()
 	redBoxRect.topright = (GAMEWIDTH - 25, 10)
-	GAMEWINDOW.blit(collectionBoxRed, redBoxRect)\
+	GAMEWINDOW.blit(collectionBoxRed, redBoxRect)
 	
 	collectionBoxGreen = BASICFONT.render("Green Pick-Ups: %s" % (numOfGreenPickUp), True, WHITE)
 	greenBoxRect = collectionBoxGreen.get_rect()
@@ -304,6 +330,67 @@ def drawTiles():
 		pygame.draw.line(GAMEWINDOW, WHITE, (x, 0), (x, GAMEHEIGHT))
 	for y in range(0, GAMEHEIGHT, TILESIZE):
 		pygame.draw.line(GAMEWINDOW, WHITE, (0, y), (GAMEWIDTH, y))
+
+def newPixelVal(oldpixel, modifier, reverse):
+	if(not reverse):
+		if(oldpixel + modifier > 255):
+			return oldpixel + modifier - 255
+		else:
+			return oldpixel + modifier
+	else:
+		if(oldpixel - modifier < 0):
+			return oldpixel - modifier + 255
+		else:
+			return oldpixel - modifier
+
+def modfile(filename, redval, greenval, blueval, negative, reverse):
+	image = Image.open(filename)		
+	width, height = image.size
+	result_image = image.copy()
+	result_image = result_image.convert('RGB')
+	new_Image = Image.new('RGB', (width, height), "black")
+	pixels = new_Image.load()
+	if(reverse):
+		for w in range(0, width):
+			for h in range(0, height):
+				r, g, b = result_image.getpixel((w, h))	
+				red = newPixelVal(r, redval, True)
+				green = newPixelVal(g, greenval, True)
+				blue = newPixelVal(b, blueval, True)
+				pixels[w,h] = (red, green, blue)
+				
+				if(negative):
+					pixels[w,h] = (255 - red, 255 - green, 255 - blue)
+			
+		imcv = np.array(new_Image)
+				
+	else: #not reverse
+		for w in range(0, width):
+			for h in range(0, height):
+				r, g, b = result_image.getpixel((w, h))
+				red = newPixelVal(r, redval, False)
+				green = newPixelVal(g, greenval, False)
+				blue = newPixelVal(b, blueval, False)
+				pixels[w,h] = (red, green, blue)
+				
+				if(negative):
+					pixels[w,h] = (255 - red, 255 - green, 255 - blue)
+				
+		imcv = np.array(new_Image)
 		
+	result_name = filename + "_mod_" + str(redval) + "_" + str(greenval) + "_" + str(blueval) + ".jpg"
+	cv2.imwrite(result_name, imcv)		
+	cv2.imshow(result_name, imcv)
+	cv2.waitKey(0)
+	cv2.destroyAllWindows()
+	
+def openfile():
+	global filename
+	filename = askopenfilename()
+	destroyWindow()
+    
+def destroyWindow():
+	root.destroy()
+    
 if __name__ == '__main__':
 	main() 

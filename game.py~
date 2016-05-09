@@ -49,6 +49,8 @@ def runGame():
 	time = 2000
 	negativeMessage = "Not Obtained"
 	reverseMessage = "Not Obtained"
+	negative = False
+	reverse = False
 	
 	redPickUp1 = getRandomLocation()
 	redPickUp2 = getRandomLocation()
@@ -146,10 +148,12 @@ def runGame():
 			
 		if (playerLocation['x'] == negativeLocation['x'] and playerLocation['y'] == negativeLocation['y']):
 			negativeMessage = "Obtained!"
+			negative = True
 			removeNegativePickUp(negativeLocation)
 			
 		if (playerLocation['x'] == reverseLocation['x'] and playerLocation['y'] == reverseLocation['y']):
 			reverseMessage = "Obtained!"
+			reverse = True
 			removeReversePickUp(reverseLocation)
 			
 			
