@@ -1,3 +1,5 @@
+# David Jia, Harrison Oglesby, Brandon Martinez
+# Look in README for Trello and Github and other relevant information
 import random, pygame, sys
 import numpy as np
 import cv2
