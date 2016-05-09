@@ -1,3 +1,5 @@
+# David Jia, Harrison Oglesby, Brandon Martinez
+# Look in README for Trello and Github and other relevant information
 import random, pygame, sys
 import numpy as np
 import cv2
@@ -64,10 +66,14 @@ def runGame():
 	startx = random.randint(0,TILEWIDTH - 1)
 	starty = random.randint(0,TILEHEIGHT - 1)
 	playerLocation = {'x': startx, 'y': starty}
+	playerMove = None
 	negativeLocation = {'x': -1, 'y': -1}
 	negativeSpawn = 0
 	reverseLocation = {'x': -1, 'y': -1}
 	reverseSpawn = 0
+	
+	negativeSpawnChance = random.randint(0, 1500)
+	reverseSpawnChance = random.randint(0, 1500)
 	
 	numOfRedPickUp = 0
 	numOfGreenPickUp = 0
@@ -95,10 +101,10 @@ def runGame():
 	bluePickUp5 = getRandomLocation()
 	
 	while True:
-		negativeSpawnChance = random.randint(0, 750)
-		reverseSpawnChance = random.randint(0, 750)
+		if (playerMove != None):
+			negativeSpawnChance = random.randint(0, 2000)
+			reverseSpawnChance = random.randint(0, 2000)
 	
-		playerMove = None
 		keyPressed = False
 		
 		for event in pygame.event.get():
@@ -106,22 +112,24 @@ def runGame():
 				stop()
 			elif event.type == KEYDOWN:
 				keyPressed = True
-				if (event.key == K_LEFT and playerLocation['x'] != 0):
-					playerMove = LEFT
-				elif (event.key == K_RIGHT and playerLocation['x'] != 19):
-					playerMove = RIGHT
-				elif (event.key == K_UP and playerLocation['y'] != 0):
+				if (event.key == K_UP and playerLocation['y'] != 0):
 					playerMove = UP
 				elif (event.key == K_DOWN and playerLocation['y'] != 14):
 					playerMove = DOWN
-					
-		if playerMove == UP:
+				elif (event.key == K_LEFT and playerLocation['x'] != 0):
+					playerMove = LEFT
+				elif (event.key == K_RIGHT and playerLocation['x'] != 19):
+					playerMove = RIGHT
+				elif (event.key == K_SPACE):
+					playerMove = None
+		
+		if (playerMove == UP and playerLocation['y'] != 0):
 			playerLocation = {'x': playerLocation['x'], 'y': playerLocation['y'] - 1}
-		elif playerMove == DOWN:
+		elif (playerMove == DOWN and playerLocation['y'] != 14):
 			playerLocation = {'x': playerLocation['x'], 'y': playerLocation['y'] + 1}
-		elif playerMove == LEFT:
+		elif (playerMove == LEFT and playerLocation['x'] != 0):
 			playerLocation = {'x': playerLocation['x'] - 1, 'y': playerLocation['y']}
-		elif playerMove == RIGHT:
+		elif (playerMove == RIGHT and playerLocation['x'] != 19):
 			playerLocation = {'x': playerLocation['x'] + 1, 'y': playerLocation['y']}
 			
 		if (playerLocation['x'] == redPickUp1['x'] and playerLocation['y'] == redPickUp1['y']):
@@ -188,7 +196,7 @@ def runGame():
 			drawPlayer(playerLocation)
 		
 		GAMEWINDOW.fill(BACKGROUNDCOLOR)
-		drawTiles()
+		# drawTiles()
 		drawPlayer(playerLocation)
 		
 		drawRedPickUp(redPickUp1)
@@ -223,7 +231,8 @@ def runGame():
 		if (reverseMessage == "Not Obtained"):
 			drawReversePickUp(reverseLocation)
 		
-		time -= 1
+		if (playerMove != None):
+			time -= 1
 		
 		displayCollection(numOfRedPickUp, numOfGreenPickUp, numOfBluePickUp, time, negativeMessage, reverseMessage)
 		
@@ -325,11 +334,11 @@ def drawPlayer(playerLocation):
 	playerInnerShell = pygame.Rect(x + 7, y + 7, TILESIZE - 13, TILESIZE - 13)
 	pygame.draw.rect(GAMEWINDOW, ORANGE, playerInnerShell)
 	
-def drawTiles():
+"""def drawTiles():
 	for x in range(0, GAMEWIDTH, TILESIZE):
 		pygame.draw.line(GAMEWINDOW, WHITE, (x, 0), (x, GAMEHEIGHT))
 	for y in range(0, GAMEHEIGHT, TILESIZE):
-		pygame.draw.line(GAMEWINDOW, WHITE, (0, y), (GAMEWIDTH, y))
+		pygame.draw.line(GAMEWINDOW, WHITE, (0, y), (GAMEWIDTH, y))"""
 
 def newPixelVal(oldpixel, modifier, reverse):
 	if(not reverse):
