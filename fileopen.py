@@ -12,12 +12,13 @@ def openfile():
     result_image = image.copy()
     blurFileName = "./result_" + str(int(random.random() * 1000)) + ".png"
     cv2.imwrite(blurFileName, result_image)
-    cv2.imshow(blurFileName, result_image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+    destroyWindow()
 
 root = Tk()
-
+def destroyWindow():
+    root.destroy()
 # buttons the appear for the GUI
 button = Button(text="Choose Image", command=openfile)
 button.place(x = 225, y = 200)
