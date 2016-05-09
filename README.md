@@ -1,6 +1,6 @@
 #CST205 Spring 2016
 
-Project 3
+Project 3 : Color Collector!
 Group 100
 
 David Jia

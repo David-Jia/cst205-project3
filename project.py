@@ -55,7 +55,7 @@ def main():
 	FPSCLOCK = pygame.time.Clock()
 	GAMEWINDOW = pygame.display.set_mode((GAMEWIDTH,GAMEHEIGHT))
 	BASICFONT = pygame.font.Font('freesansbold.ttf', 16)
-	pygame.display.set_caption('test')
+	pygame.display.set_caption('Color Collector')
 	while True:
 		runGame()
 

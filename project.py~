@@ -72,8 +72,8 @@ def runGame():
 	reverseLocation = {'x': -1, 'y': -1}
 	reverseSpawn = 0
 	
-	negativeSpawnChance = random.randint(0, 1500)
-	reverseSpawnChance = random.randint(0, 1500)
+	negativeSpawnChance = random.randint(0, 2000)
+	reverseSpawnChance = random.randint(0, 2000)
 	
 	numOfRedPickUp = 0
 	numOfGreenPickUp = 0
