@@ -24,6 +24,8 @@ DARKORANGE = (255, 140, 0)
 PURPLE = (160, 32, 240)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+LIGHTGREY = (160, 160, 160)
+LIGHTPURPLE = (204, 153, 255)
 BACKGROUNDCOLOR = BLACK
 UP = 'up'
 DOWN = 'down'
@@ -55,7 +57,7 @@ def main():
 	FPSCLOCK = pygame.time.Clock()
 	GAMEWINDOW = pygame.display.set_mode((GAMEWIDTH,GAMEHEIGHT))
 	BASICFONT = pygame.font.Font('freesansbold.ttf', 16)
-	pygame.display.set_caption('test')
+	pygame.display.set_caption('Color Collector')
 	while True:
 		runGame()
 
@@ -63,27 +65,37 @@ def main():
 
 def runGame():
 
+	# Spawns the player at a random spot
 	startx = random.randint(0,TILEWIDTH - 1)
 	starty = random.randint(0,TILEHEIGHT - 1)
 	playerLocation = {'x': startx, 'y': starty}
+	
+	# Makes sure the player isn't moving
 	playerMove = None
+	
+	# Spawns the negative and reverse pick-up at a random spot
 	negativeLocation = {'x': -1, 'y': -1}
 	negativeSpawn = 0
 	reverseLocation = {'x': -1, 'y': -1}
 	reverseSpawn = 0
 	
+	# Gives the negative and reverse pick up a random spawn rate
 	negativeSpawnChance = random.randint(0, 2000)
 	reverseSpawnChance = random.randint(0, 2000)
 	
+	# Keeps track of how many times the user has picked up a certain color 
 	numOfRedPickUp = 0
 	numOfGreenPickUp = 0
 	numOfBluePickUp = 0
-	time = 2500
 	negativeMessage = "Not Obtained"
 	reverseMessage = "Not Obtained"
 	negative = False
 	reverse = False
 	
+	# Amount of time the game lasts
+	time = 2500
+	
+	# Assigns all the color pick-ups a random spawn
 	redPickUp1 = getRandomLocation()
 	redPickUp2 = getRandomLocation()
 	redPickUp3 = getRandomLocation()
@@ -101,9 +113,10 @@ def runGame():
 	bluePickUp5 = getRandomLocation()
 	
 	while True:
+		# if the game is paused
 		if (playerMove != None):
-			negativeSpawnChance = random.randint(0, 2000)
-			reverseSpawnChance = random.randint(0, 2000)
+			negativeSpawnChance = random.randint(375, 375)
+			reverseSpawnChance = random.randint(375, 375)
 	
 		keyPressed = False
 		
@@ -120,9 +133,11 @@ def runGame():
 					playerMove = LEFT
 				elif (event.key == K_RIGHT and playerLocation['x'] != 19):
 					playerMove = RIGHT
+				# Pause button
 				elif (event.key == K_SPACE):
 					playerMove = None
 		
+		# Boundary checks
 		if (playerMove == UP and playerLocation['y'] != 0):
 			playerLocation = {'x': playerLocation['x'], 'y': playerLocation['y'] - 1}
 		elif (playerMove == DOWN and playerLocation['y'] != 14):
@@ -132,6 +147,8 @@ def runGame():
 		elif (playerMove == RIGHT and playerLocation['x'] != 19):
 			playerLocation = {'x': playerLocation['x'] + 1, 'y': playerLocation['y']}
 			
+		# **************************************************************************************************
+		# Checks if the player has touched a pick-up	
 		if (playerLocation['x'] == redPickUp1['x'] and playerLocation['y'] == redPickUp1['y']):
 			redPickUp1 = getRandomLocation()
 			numOfRedPickUp += 1
@@ -189,16 +206,18 @@ def runGame():
 			reverseMessage = "Obtained!"
 			reverse = True
 			removeReversePickUp(reverseLocation)
+		# **************************************************************************************************
 			
-			
-		
+		# Draws the player in their new location
 		if keyPressed == True:
 			drawPlayer(playerLocation)
 		
 		GAMEWINDOW.fill(BACKGROUNDCOLOR)
+		# No longer needed for the final product
 		# drawTiles()
 		drawPlayer(playerLocation)
 		
+		# Draws the color pick-ups
 		drawRedPickUp(redPickUp1)
 		drawRedPickUp(redPickUp2)
 		drawRedPickUp(redPickUp3)
@@ -217,6 +236,8 @@ def runGame():
 		drawBluePickUp(bluePickUp4)
 		drawBluePickUp(bluePickUp5)
 		
+		# Spawns the negative and reverse pick-ups if they have not been spawned yet and they have been chosen to 
+		# spawn
 		if (negativeSpawnChance == 375 and negativeSpawn == 0):
 			negativeLocation = getRandomLocation()
 			negativeSpawn = 1
@@ -231,12 +252,14 @@ def runGame():
 		if (reverseMessage == "Not Obtained"):
 			drawReversePickUp(reverseLocation)
 		
+		# While the game is not paused, decrease the timer
 		if (playerMove != None):
 			time -= 1
 		
+		# Information display in the top right corner of the screen
 		displayCollection(numOfRedPickUp, numOfGreenPickUp, numOfBluePickUp, time, negativeMessage, reverseMessage)
 		
-		
+		# Once the time reaches 0, quit the game and modify the image
 		if (time == 0):
 			pygame.quit()
 			modfile(filename, numOfRedPickUp, numOfGreenPickUp, numOfBluePickUp, negative, reverse)
@@ -245,11 +268,12 @@ def runGame():
 		pygame.display.update()
 		FPSCLOCK.tick(FPS)
 					
-				
+# Quit the program				
 def stop():
 	pygame.quit()
 	sys.exit()	
 
+# Information display box found in the top right corner of the game
 def displayCollection(numOfRedPickUp, numOfGreenPickUp, numOfBluePickUp, time, negativeMessage, reverseMessage):
 	collectionBoxRed = BASICFONT.render("Red Pick-Ups: %s" % (numOfRedPickUp), True, WHITE)
 	redBoxRect = collectionBoxRed.get_rect()
@@ -281,51 +305,64 @@ def displayCollection(numOfRedPickUp, numOfGreenPickUp, numOfBluePickUp, time, n
 	reverseBoxRect.topright = (GAMEWIDTH - 25, 90)
 	GAMEWINDOW.blit(collectionBoxReverse, reverseBoxRect)
 	
+# Assigns a random x,y coordinate
 def getRandomLocation():	
 	return {'x': random.randint(0,TILEWIDTH - 1), 'y': random.randint(0,TILEHEIGHT - 1)}
-	
+
+# Draws the red color pick-up at the given location
 def drawRedPickUp(redPickUpLocation):
 	x = redPickUpLocation['x'] * TILESIZE
 	y = redPickUpLocation['y'] * TILESIZE
 	redPickUpParticle = pygame.Rect(x + 6, y + 6, TILESIZE - 11, TILESIZE - 11)
 	pygame.draw.rect(GAMEWINDOW, RED, redPickUpParticle)
 	
+# Draws the green color pick-up at the given location
 def drawGreenPickUp(greenPickUpLocation):
 	x = greenPickUpLocation['x'] * TILESIZE
 	y = greenPickUpLocation['y'] * TILESIZE
 	greenPickUpParticle = pygame.Rect(x + 6, y + 6, TILESIZE - 11, TILESIZE - 11)
 	pygame.draw.rect(GAMEWINDOW, GREEN, greenPickUpParticle)
 	
+# Draws the blue color pick-up at the given location
 def drawBluePickUp(bluePickUpLocation):
 	x = bluePickUpLocation['x'] * TILESIZE
 	y = bluePickUpLocation['y'] * TILESIZE
 	bluePickUpParticle = pygame.Rect(x + 6, y + 6, TILESIZE - 11, TILESIZE - 11)
 	pygame.draw.rect(GAMEWINDOW, BLUE, bluePickUpParticle)
 	
+# Draws the Negative pick-up at the given location
 def drawNegativePickUp(negativeLocation):
 	x = negativeLocation['x'] * TILESIZE
 	y = negativeLocation['y'] * TILESIZE
-	negativePickUpParticle = pygame.Rect(x + 6, y + 6, TILESIZE - 11, TILESIZE - 11)
-	pygame.draw.rect(GAMEWINDOW, WHITE, negativePickUpParticle)
+	negativePickUpOuterParticle = pygame.Rect(x + 6, y + 6, TILESIZE - 11, TILESIZE - 11)
+	pygame.draw.rect(GAMEWINDOW, LIGHTGREY, negativePickUpOuterParticle)
+	negativePickUpInnerParticle = pygame.Rect(x + 10, y + 10, TILESIZE - 19, TILESIZE - 19)
+	pygame.draw.rect(GAMEWINDOW, WHITE, negativePickUpInnerParticle)
 	
+# Removes the Negative pick-up by coloring it black
 def removeNegativePickUp(negativeLocation):
 	x = negativeLocation['x'] * TILESIZE
 	y = negativeLocation['y'] * TILESIZE
 	negativePickUpParticle = pygame.Rect(x + 6, y + 6, TILESIZE - 11, TILESIZE - 11)
 	pygame.draw.rect(GAMEWINDOW, BLACK, negativePickUpParticle)
 	
+# Draws the Reverse pick-up at the given location
 def drawReversePickUp(reverseLocation):
 	x = reverseLocation['x'] * TILESIZE
 	y = reverseLocation['y'] * TILESIZE
-	reversePickUpParticle = pygame.Rect(x + 6, y + 6, TILESIZE - 11, TILESIZE - 11)
-	pygame.draw.rect(GAMEWINDOW, PURPLE, reversePickUpParticle)
+	reversePickUpOuterParticle = pygame.Rect(x + 6, y + 6, TILESIZE - 11, TILESIZE - 11)
+	pygame.draw.rect(GAMEWINDOW, PURPLE, reversePickUpOuterParticle)
+	reversePickUpInnerParticle = pygame.Rect(x + 10, y + 10, TILESIZE - 19, TILESIZE - 19)
+	pygame.draw.rect(GAMEWINDOW, LIGHTPURPLE, reversePickUpInnerParticle)
 	
+# Removes the Reverse pick-up by coloring it black
 def removeReversePickUp(reverseLocation):
 	x = reverseLocation['x'] * TILESIZE
 	y = reverseLocation['y'] * TILESIZE
 	reversePickUpParticle = pygame.Rect(x + 6, y + 6, TILESIZE - 11, TILESIZE - 11)
 	pygame.draw.rect(GAMEWINDOW, BLACK, reversePickUpParticle)
 	
+# Draws the player at the given location
 def drawPlayer(playerLocation):
 	x = playerLocation['x'] * TILESIZE	
 	y = playerLocation['y'] * TILESIZE
@@ -334,12 +371,14 @@ def drawPlayer(playerLocation):
 	playerInnerShell = pygame.Rect(x + 7, y + 7, TILESIZE - 13, TILESIZE - 13)
 	pygame.draw.rect(GAMEWINDOW, ORANGE, playerInnerShell)
 	
+# Divided the game into tiles; No longer needed for the final product
 """def drawTiles():
 	for x in range(0, GAMEWIDTH, TILESIZE):
 		pygame.draw.line(GAMEWINDOW, WHITE, (x, 0), (x, GAMEHEIGHT))
 	for y in range(0, GAMEHEIGHT, TILESIZE):
 		pygame.draw.line(GAMEWINDOW, WHITE, (0, y), (GAMEWIDTH, y))"""
 
+# Finds the new pixel value for the given pixel value
 def newPixelVal(oldpixel, modifier, reverse):
 	if(not reverse):
 		if(oldpixel + modifier > 255):
@@ -352,6 +391,7 @@ def newPixelVal(oldpixel, modifier, reverse):
 		else:
 			return oldpixel - modifier
 
+# Modifies the image file based on performance in the game
 def modfile(filename, redval, greenval, blueval, negative, reverse):
 	image = Image.open(filename)		
 	width, height = image.size
@@ -359,6 +399,7 @@ def modfile(filename, redval, greenval, blueval, negative, reverse):
 	result_image = result_image.convert('RGB')
 	new_Image = Image.new('RGB', (width, height), "black")
 	pixels = new_Image.load()
+	# If reverse pick-up was collected
 	if(reverse):
 		for w in range(0, width):
 			for h in range(0, height):
@@ -368,11 +409,13 @@ def modfile(filename, redval, greenval, blueval, negative, reverse):
 				blue = newPixelVal(b, blueval, True)
 				pixels[w,h] = (red, green, blue)
 				
+				# If negative pick-up was collected
 				if(negative):
 					pixels[w,h] = (255 - red, 255 - green, 255 - blue)
 			
 		imcv = np.array(new_Image)
-				
+	
+	# If reverse pick-up was not collected			
 	else: #not reverse
 		for w in range(0, width):
 			for h in range(0, height):
@@ -382,6 +425,7 @@ def modfile(filename, redval, greenval, blueval, negative, reverse):
 				blue = newPixelVal(b, blueval, False)
 				pixels[w,h] = (red, green, blue)
 				
+				# If negative pick-up was collected
 				if(negative):
 					pixels[w,h] = (255 - red, 255 - green, 255 - blue)
 				
